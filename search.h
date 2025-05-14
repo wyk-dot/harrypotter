@@ -10,7 +10,7 @@ class Search
 {
 public:
     Search();
-    static void bruteforce(QString text, QString model, QTableWidgetItem *item[5], QString page);
+    static int bruteforce(QString text, QString model);
 };
 
 #endif // SEARCH_H

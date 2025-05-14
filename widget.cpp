@@ -1,7 +1,6 @@
 #include "widget.h"
 #include "search.h"
 #include "ui_widget.h"
-#include <string>
 #include <cstring>
 
 using namespace std;
@@ -33,7 +32,7 @@ Widget::~Widget()
 void Widget::on_commitButton_clicked()
 {
     QString model=ui->cmdLineEdit->text();
-    QFile file2(filename);
+    QFile file(filename);
     if (model.isEmpty())
     {
         QMessageBox::warning(this, "警告", "请输入一个人名/地名");
@@ -44,35 +43,46 @@ void Widget::on_commitButton_clicked()
         QMessageBox::warning(this, "警告", "请选择一个文件");
         return;
     }
-    if (!file2.open(QIODevice::ReadOnly|QIODevice::Text))
+    ui->tableWidget->setRowCount(0);                           //下一次搜索之前将上一次的表格数据删掉
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
     {
         QMessageBox::warning(this, "警告", "无法打开文件");
         return;
     }
-    int n=filename.size(), i=0, j=0;                //page用于记录页数，chapter用于记录章节数
-    bool ok;
-    QString line, tename, chapter, page;            //line用于存储每一次从文本当中读取到的内容，tename用于存储书的名字, chapter用于记录章节数
-    for (int k=n;k>=0;k--)                          //此循环用于从文件地址里面提取书名
+    int n=filename.size(), i=0, j=0, nCount=0, times=0;        //nCount用于记录表格的行数， page用于记录页数
+    //bool ok;
+    QString line, tename, chapter, page;                       //line用于存储每一次从文本当中读取到的内容，tename用于存储书的名字, chapter用于记录章节数
+    for (int k=n;k>=0;k--)                                     //此循环用于从文件地址里面提取书名
     {
         if (filename[k]=='.') j=k;
         if (filename[k]=='/') {i=k;break;}
     }
     tename=filename.mid(i+1, j-i-1);
     QTableWidgetItem *item[5];
-    line=file2.readLine();
-    if (line=="CHAPTER ONE" || line=="Chapter one") chapter="1";//先将第一行文本内容读出来，判断在哪一个章节
-    if (line=="CHAPTER ZERO") chapter="0";
-    if (line=="Foreword") chapter="前言";
-    while(!file2.atEnd())
+    line=file.readLine();
+    if (line=="CHAPTER ONE\n" || line=="Chapter one\n") chapter="1";//先将第一行文本内容读出来，判断在哪一个章节
+    if (line=="CHAPTER ZERO\n") chapter="0";
+    if (line=="Foreword\n") chapter="前言";
+    while(!file.atEnd())
     {
-        line=file2.readLine();
-        if (line.size()<=3 && line!='\n')
+        line=file.readLine();
+        ui->textEdit->setText(line);
+        times+=Search::bruteforce(line, model);
+        if ((line.size()<= 4 || line=="viii\n") && line!="\n")
         {
-            page=line;
+            for (int i=0;i<times;i++, nCount++)
+            {
+                nCount=ui->tableWidget->rowCount();
+                ui->tableWidget->insertRow(nCount);
+                item[2]=new QTableWidgetItem(line.trimmed());
+                ui->tableWidget->setItem(nCount, 2, item[2]);
+            }
+
+            times=0;
         }
-        Search::bruteforce(line, model, item, page);
     }
-    int nCount=ui->tableWidget->rowCount();
+    file.close();
+    nCount=ui->tableWidget->rowCount();
     for (int i=0;i<nCount;i++)
     {
         item[0]=new QTableWidgetItem(QString("%1").arg(i+1));
@@ -84,26 +94,20 @@ void Widget::on_commitButton_clicked()
         item[4]=new QTableWidgetItem(tename);
         ui->tableWidget->setItem(i, 4, item[4]);
     }
-
-    /*for(int i=0;i<5000;i++)
-    {
-        nCount=ui->tableWidget->rowCount();
-        ui->tableWidget->insertRow(nCount);
-    }*/
 }
 
 
 void Widget::on_pushButton_clicked()
 {
     filename=QFileDialog::getOpenFileName(this, tr("打开文件"), ".../", tr("文本文件(*txt)"));
-    QFile file1(filename);
-    if (!file1.open(QIODevice::ReadOnly|QIODevice::Text))
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
     {
         QMessageBox::warning(this, "警告", "无法打开文件");
         return;
     }
     ui->openfile->setText(filename);
-    file1.close();
+    file.close();
 }
 
 
