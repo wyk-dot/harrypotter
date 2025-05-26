@@ -10,7 +10,7 @@ int Search::bruteforce(QString text, QString model)
         {
             if (text[j]!=model[p]) break;
         }
-        if (p==m) times+=1;
+        if (p==m) times++;
     }
     return times;
 }

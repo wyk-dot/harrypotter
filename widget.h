@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <cstring>
+#include <QWidget>
+#include <QTableWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -33,9 +35,12 @@ private slots:
 
     void on_retirebutton_clicked();
 
+    void onTableRowClicked(int row, int col);
+
 private:
     Ui::Widget *ui;
     QString filename;
     QStringList header;
+    int position[10000];
 };
 #endif // WIDGET_H

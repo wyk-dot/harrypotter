@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1023</width>
-    <height>729</height>
+    <height>758</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,8 +52,8 @@
   <widget class="QPushButton" name="commitButton">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>670</y>
+     <x>670</x>
+     <y>690</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -65,8 +65,8 @@
   <widget class="QPushButton" name="retirebutton">
    <property name="geometry">
     <rect>
-     <x>690</x>
-     <y>670</y>
+     <x>840</x>
+     <y>690</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -79,9 +79,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>160</y>
-     <width>991</width>
-     <height>491</height>
+     <y>140</y>
+     <width>1001</width>
+     <height>391</height>
     </rect>
    </property>
   </widget>
@@ -112,10 +112,33 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>30</y>
-     <width>281</width>
+     <y>40</y>
+     <width>291</width>
+     <height>91</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="informEdit">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>540</y>
+     <width>1001</width>
      <height>121</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>694</y>
+     <width>231</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>注：点击表格序号可以查看前后文</string>
    </property>
   </widget>
  </widget>

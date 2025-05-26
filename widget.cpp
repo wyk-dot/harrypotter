@@ -11,6 +11,7 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->cmdLineEdit, SIGNAL(returnPressed()), this, SLOT(on_commitButton_clicked()));
+    connect(ui->tableWidget, &QTableWidget::cellClicked, this, &Widget::onTableRowClicked);
     ui->tableWidget->setColumnCount(5);
     header << "序号" << "人名/地名" << "页码" << "章节" << "书名";
     ui->tableWidget->setHorizontalHeaderLabels(header);
@@ -21,12 +22,36 @@ Widget::Widget(QWidget *parent)
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     ui->tableWidget->setAlternatingRowColors(true);
     ui->tableWidget->verticalHeader()->setVisible(false);
-
+    memset(position, -1, 10000);
 }
 
 Widget::~Widget()
 {
     delete ui;
+}
+
+void Widget::onTableRowClicked(int row, int col)
+{
+    Q_UNUSED(col);
+    ui->informEdit->clear();
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+    {
+        QMessageBox::warning(this, "警告", "无法打开文件");
+        return;
+    }
+    QString line;
+    int data=ui->tableWidget->item(row, 0)->text().toInt(), num=-1;
+    while(!file.atEnd())
+    {
+        line=file.readLine();
+        num++;
+        if (num==position[data]-1 || num==position[data])
+        {
+            ui->informEdit->append(line);
+        }
+    }
+
 }
 
 void Widget::on_commitButton_clicked()
@@ -49,7 +74,9 @@ void Widget::on_commitButton_clicked()
         QMessageBox::warning(this, "警告", "无法打开文件");
         return;
     }
-    int n=filename.size(), i=0, j=0, nCount=0, times=0;        //nCount用于记录表格的行数， page用于记录页数
+    ui->textEdit->setText("成功打开文件");
+    memset(position, -1, 10000);
+    int n=filename.size(), i=0, j=0, nCount=0, times=0, num1=0, num2=1;        //nCount用于记录表格的行数， page用于记录页数
     //bool ok;
     QString line, tename, chapter, page;                       //line用于存储每一次从文本当中读取到的内容，tename用于存储书的名字, chapter用于记录章节数
     for (int k=n;k>=0;k--)                                     //此循环用于从文件地址里面提取书名
@@ -66,9 +93,19 @@ void Widget::on_commitButton_clicked()
     while(!file.atEnd())
     {
         line=file.readLine();
-        ui->textEdit->setText(line);
-        times+=Search::bruteforce(line, model);
-        if ((line.size()<= 4 || line=="viii\n") && line!="\n")
+        num1++;
+        int num3=Search::bruteforce(line, model);
+        if (num3!=0)
+        {
+            times+=num3;
+            for (int i=0;i<num3;i++)
+            {
+                position[num2]=num1;
+                num2++;
+            }
+
+        }
+        if ((line.size()<= 4 || line=="viii\n" || line=="xvii\n" || line=="xiii\n") && line!="\n")
         {
             for (int i=0;i<times;i++, nCount++)
             {
@@ -94,6 +131,7 @@ void Widget::on_commitButton_clicked()
         item[4]=new QTableWidgetItem(tename);
         ui->tableWidget->setItem(i, 4, item[4]);
     }
+    ui->textEdit->setText("搜索完毕");
 }
 
 
